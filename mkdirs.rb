@@ -11,7 +11,7 @@ YEAR = Time.now.year
 def get_title(year, day)
   uri = URI.parse("https://adventofcode.com/#{year}/day/#{day}")
   response = Net::HTTP.get_response uri
-  _, day, title = response.body.match(%r[--- Day (\d+): (.*) ---]).to_a
+  _, day, title = response.body.force_encoding(Encoding::UTF_8).match(%r[--- Day (\d+): (.*) ---]).to_a
 
   title
 end
@@ -44,7 +44,16 @@ missing.to_a.sort.reverse.each do |day|
   create_file_if_missing(File.join(path, "#{title_underscored}.rb")) do |f|
     f.puts """
 class #{title_classified}
-  def initialize
+  def initialize(nums)
+    @nums = nums
+  end
+
+  def calc_part_one
+
+  end
+
+  def calc_part_two
+
   end
 end
 """
@@ -55,6 +64,21 @@ end
 require_relative '#{title_underscored}'
 
 describe '#{title_classified}' do
+  def with_data(file_path)
+    cur_dir = File.dirname(__FILE__)
+    f = File.open(File.join(cur_dir, file_path))
+    nums = f.readlines.map(&:to_i)
+
+    #{title_classified}.new(nums)
+  end
+
+  it 'should be able to handle example data' do
+    expect(with_data('fixtures/input.txt').calc_part_one).to eq(0)
+  end
+
+  skip 'should be able to handle example data for part two' do
+    expect(with_data('fixtures/input.txt').calc_part_two).to eq(0)
+  end
 end
 """
   end
