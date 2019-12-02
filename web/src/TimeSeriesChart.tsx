@@ -31,6 +31,9 @@ export class TimeSeriesChart extends React.Component<TimeSeriesChartProps> {
 
 
     render() {
+        if( !this.faye ) {
+            return null;
+        }
         return (
             <ReactEcharts
                 style={{width: '100%'}}

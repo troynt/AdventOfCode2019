@@ -17,8 +17,17 @@ export class FayeStore<T> {
 
 	constructor(channel: EFayeChannel) {
 		this.channel = channel;
-		this.subscription = window.fayeClient.subscribe(this.channel, this.addMessage);
+		this.subscription = window.fayeClient.subscribe(this.channel, this.handleMessage);
 	}
+
+	private handleMessage = (msg) => {
+			if( msg.type === "RESET" ) {
+				this.reset();
+			}
+			else {
+				this.addMessage(msg);
+			}
+	};
 
 	unsubscribe() {
 		this.subscription.unsubscribe();
@@ -46,6 +55,11 @@ export class FayeStore<T> {
 	}
 
 	@action
+	reset() {
+		this.messages = [];
+	}
+
+	@action
 	step(step: number) {
 		const newIdx = (this.currentIndex || 0) + step;
 		if( newIdx >= 0 && newIdx < this.messages.length ) {
@@ -61,6 +75,4 @@ export class FayeStore<T> {
 	async publish(message: T) {
 		return window.fayeClient.publish(this.channel, message);
 	}
-
-
 }
