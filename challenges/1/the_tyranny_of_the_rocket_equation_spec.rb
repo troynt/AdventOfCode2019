@@ -1,7 +1,7 @@
 
 require_relative 'the_tyranny_of_the_rocket_equation'
 
-describe 'TheTyrannyOfTheRocketEquation' do
+describe 'TheTyrannyOfTheRocketEquation', :day1 do
   def with_data(file_path)
     cur_dir = File.dirname(__FILE__)
     f = File.open(File.join(cur_dir, file_path))

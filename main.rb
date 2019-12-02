@@ -1,7 +1,14 @@
 require 'set'
 require 'rspec'
 
-RSpec::Core::Runner.run(['challenges'])
-#RSpec::Core::Runner.run(['challenges', '-e', 'ChronalClassification'])
+now = Time.now
+
+if now.month == 12 && now.year == 2019
+  RSpec::Core::Runner.run(['challenges', '--tag', "day#{now.day}"])
+else
+  RSpec::Core::Runner.run(['challenges'])
+end
+
+
 
 nil

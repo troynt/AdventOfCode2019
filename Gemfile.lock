@@ -7,6 +7,7 @@ GEM
       minitest (~> 5.1)
       tzinfo (~> 1.1)
       zeitwerk (~> 2.2)
+    awesome_print (1.8.0)
     coderay (1.1.2)
     colorize (0.8.1)
     concurrent-ruby (1.1.5)
@@ -75,6 +76,7 @@ PLATFORMS
 
 DEPENDENCIES
   activesupport
+  awesome_print
   colorize
   guard
   guard-rspec

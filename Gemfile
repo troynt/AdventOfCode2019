@@ -13,6 +13,8 @@ gem "listen"
 gem "guard"
 gem "guard-rspec"
 gem "colorize"
+gem "awesome_print"
+
 if Gem.win_platform?
   gem "win32console"
   gem 'wdm', '>= 0.1.0' if Gem.win_platform?
