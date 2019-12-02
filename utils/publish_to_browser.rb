@@ -9,7 +9,14 @@ def publish_to_browser(channel, obj)
   Net::HTTP.post_form(uri, :message => message.to_json)
 end
 
-def reset_browser(channel)
+def publish_meta_to_browser(channel, obj)
+  publish_to_browser(channel, {
+      type: "META",
+      **obj
+  })
+end
+
+def publish_reset_to_browser(channel)
   publish_to_browser(channel, { type: 'RESET' })
 end
 

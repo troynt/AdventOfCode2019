@@ -18,11 +18,11 @@ interface TimeSeriesChartProps {
 export class TimeSeriesChart extends React.Component<TimeSeriesChartProps> {
 
     @observable
-    private faye: FayeStore<EchartData>;
+    private faye: FayeStore<EchartData, { title: string }>;
 
     componentDidMount() {
         const { channel } = this.props;
-        this.faye = new FayeStore<EchartData>(channel);
+        this.faye = new FayeStore(channel);
     }
 
     componentWillUnmount(): void {
@@ -76,7 +76,13 @@ export class TimeSeriesChart extends React.Component<TimeSeriesChartProps> {
             };
         });
 
+        console.log(this.faye.meta.title)
+
         const ret = {
+            title: {
+                left: "center",
+                text: this.faye.meta.title
+            },
             tooltip: {
                 trigger: 'axis'
             },
@@ -106,7 +112,7 @@ export class TimeSeriesChart extends React.Component<TimeSeriesChartProps> {
             series
         };
 
-        console.log(JSON.stringify(ret, null, 2));
+        // console.log(JSON.stringify(ret, null, 2));
 
         return ret;
     }

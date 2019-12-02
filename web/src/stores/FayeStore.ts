@@ -5,9 +5,12 @@ import {EFayeChannel} from "../EFayeChannel";
 
 declare let window: CustomWindow;
 
-export class FayeStore<T> {
+export class FayeStore<T, M> {
 	@observable
 	messages: T[] = [];
+
+	@observable
+	meta: Partial<M> = observable.object({} as Partial<M>);
 
 	@observable
 	private _currentIndex: number | undefined;
@@ -21,12 +24,21 @@ export class FayeStore<T> {
 	}
 
 	private handleMessage = (msg) => {
-			if( msg.type === "RESET" ) {
-				this.reset();
-			}
-			else {
-				this.addMessage(msg);
-			}
+		console.log(msg);
+		if( msg.type === "RESET" ) {
+			this.reset();
+		}
+		else if( msg.type === "META") {
+			const {
+				type,
+				...rest
+			} = msg;
+
+			this.setMeta(rest);
+		}
+		else {
+			this.addMessage(msg);
+		}
 	};
 
 	unsubscribe() {
@@ -52,6 +64,11 @@ export class FayeStore<T> {
 			return this.messages[this.currentIndex];
 		}
 		return undefined;
+	}
+
+	@action
+	setMeta(meta: M) {
+		this.meta = meta;
 	}
 
 	@action

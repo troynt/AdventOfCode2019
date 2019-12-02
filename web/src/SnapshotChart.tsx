@@ -18,11 +18,11 @@ interface EchartData {
 @observer
 export class SnapshotChart extends React.Component<SnapshotChartProps> {
     @observable
-    private faye: FayeStore<EchartData>;
+    private faye: FayeStore<EchartData, { title: string }>;
 
     componentDidMount() {
         const { channel } = this.props;
-        this.faye = new FayeStore<EchartData>(channel);
+        this.faye = new FayeStore(channel);
     }
 
     componentWillUnmount(): void {
@@ -58,6 +58,10 @@ export class SnapshotChart extends React.Component<SnapshotChartProps> {
     @computed
     private get options() {
         return {
+            title: {
+                left: "center",
+                text: this.faye.meta.title
+            },
             xAxis: {
                 type: 'category',
                     data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
