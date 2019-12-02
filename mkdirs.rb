@@ -16,6 +16,28 @@ def get_title(year, day)
   title
 end
 
+# requires AOC_SESSION environment variable set.
+def get_input(year, day)
+  if !ENV["AOC_SESSION"]
+    return
+  end
+
+  uri = URI.parse("https://adventofcode.com/#{year}/day/#{day}/input")
+
+  req = Net::HTTP::Get.new(uri)
+
+  req['Cookie'] = "session=#{ENV["AOC_SESSION"]}"
+
+  http = Net::HTTP.new(uri.host, uri.port)
+  http.use_ssl = true
+  response = http.request(req)
+
+
+  input = response.body.force_encoding(Encoding::UTF_8)
+
+  input
+end
+
 def create_file_if_missing(file_path)
   return if File.exists? file_path
 
@@ -37,10 +59,11 @@ missing.to_a.sort.reverse.each do |day|
 
   return if title.nil?
 
-  title_underscored = title.parameterize.underscore
-  title_classified = title.gsub(" ", "").classify
+  title_underscored = title.parameterize.gsub(/^[^a-z]+/i, '').underscore
+  title_classified = title.gsub(' ', '').gsub(/^[^a-z]+/i, '').classify
 
   FileUtils.mkdir_p(File.join(path, "fixtures"))
+
   create_file_if_missing(File.join(path, "#{title_underscored}.rb")) do |f|
     f.puts """
 class #{title_classified}
@@ -63,7 +86,7 @@ end
     f.puts """
 require_relative '#{title_underscored}'
 
-describe '#{title_classified}' do
+describe '#{title_classified}', :day#{day} do
   def with_data(file_path)
     cur_dir = File.dirname(__FILE__)
     f = File.open(File.join(cur_dir, file_path))
@@ -81,6 +104,10 @@ describe '#{title_classified}' do
   end
 end
 """
+  end
+
+  create_file_if_missing(File.join(path, "fixtures", "input.txt")) do |f|
+    f.puts get_input(YEAR, day)
   end
 end
 
