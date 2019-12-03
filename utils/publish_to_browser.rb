@@ -1,7 +1,6 @@
 require 'net/http'
 require 'uri'
 require 'active_support/all'
-require 'faye'
 
 def publish_to_browser(channel, obj)
   message = {channel: channel, data: obj }
