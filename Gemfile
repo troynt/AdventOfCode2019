@@ -14,6 +14,7 @@ gem "guard"
 gem "guard-rspec"
 gem "colorize"
 gem "awesome_print"
+gem 'ruby-prof'
 
 if Gem.win_platform?
   gem "win32console"
