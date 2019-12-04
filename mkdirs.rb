@@ -66,6 +66,10 @@ missing.to_a.sort.reverse.each do |day|
 
   create_file_if_missing(File.join(path, "#{title_underscored}.rb")) do |f|
     f.puts """
+require 'awesome_print'
+require 'pry'
+
+# https://adventofcode.com/#{YEAR}/day/#{day}
 class #{title_classified}
   def initialize(nums)
     @nums = nums
@@ -95,12 +99,24 @@ describe '#{title_classified}', :day#{day} do
     #{title_classified}.new(nums)
   end
 
-  it 'should be able to handle example data' do
-    expect(with_data('fixtures/input.txt').calc_part_one).to eq(0)
+  skip 'should be able to handle example data for part one' do
+    ex = with_data('fixtures/example.txt')
+    expect(ex.calc_part_one).to eq(0)
+  end
+
+  it 'should be able to handle input data for part one' do
+    ex = with_data('fixtures/input.txt')
+    expect(ex.calc_part_one).to eq(0)
   end
 
   skip 'should be able to handle example data for part two' do
-    expect(with_data('fixtures/input.txt').calc_part_two).to eq(0)
+    ex = with_data('fixtures/example.txt')
+    expect(ex.calc_part_one).to eq(0)
+  end
+
+  skip 'should be able to handle example data for part two' do
+    ex = with_data('fixtures/input.txt')
+    expect(ex.calc_part_two).to eq(0)
   end
 end
 """
