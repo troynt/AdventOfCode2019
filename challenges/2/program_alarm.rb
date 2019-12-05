@@ -29,7 +29,7 @@ class ProgramAlarm
       :outputs,
       :verbose,
       :mem,
-      :ip
+      :ip # instruction pointer
   )
 
   def initialize(nums, verbose = false)
@@ -68,8 +68,8 @@ class ProgramAlarm
     ret
   end
 
-  def write(parameter, value)
-    location = @ip + parameter
+  def write(offset, value)
+    location = @ip + offset
     @mem[@mem[location]] = value
     @outputs << value
   end
