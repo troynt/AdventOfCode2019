@@ -1,6 +1,9 @@
 class HaltError < StandardError
 end
 
+class SuspendError < StandardError
+end
+
 class NoOpError < StandardError
 end
 
@@ -21,10 +24,6 @@ class ProgramAlarm
   POSITION_MODE = 0
   IMMEDIATE_MODE = 1
 
-  attr_accessor(
-      :input
-  )
-
   attr_reader(
       :outputs,
       :verbose,
@@ -32,11 +31,32 @@ class ProgramAlarm
       :ip # instruction pointer
   )
 
-  def initialize(nums, verbose = false)
-    @orig = nums
+  def initialize(mem:, id: "", verbose: false)
+    @orig = mem
     @verbose = verbose
+    @on_input = Proc.new do
+      1
+    end
+
+    @id = id
+    @halted = false
+    @on_output = Proc.new do |out|
+      @outputs << out
+    end
+
     reset!
-    self.input = 1
+  end
+
+  def inspect
+    @id
+  end
+
+  def on_input(&block)
+    @on_input = block
+  end
+
+  def on_output(&block)
+    @on_output = block
   end
 
   def noun=(noun)
@@ -51,6 +71,7 @@ class ProgramAlarm
     @mem = @orig.dup
     @ip = 0
     @outputs = []
+    @halted = false
   end
 
   def read!(parameter, mode)
@@ -71,7 +92,10 @@ class ProgramAlarm
   def write(offset, value)
     location = @ip + offset
     @mem[@mem[location]] = value
-    @outputs << value
+  end
+
+  def halted?
+    @halted
   end
 
   def run!
@@ -105,6 +129,7 @@ class ProgramAlarm
     @ip += amount
   end
 
+  # returns true if output
   def exec!
 
     op = read!(0, 1)
@@ -120,7 +145,8 @@ class ProgramAlarm
 
     case op
       when HALT
-        raise HaltError, "got halt"
+        @halted = true
+        raise HaltError, "#{inspect} got halt"
       when ADD
         a = read!(1, mode1)
         b = read!(2, mode2)
@@ -132,11 +158,14 @@ class ProgramAlarm
         write(3, a * b)
         step(4)
       when GET_INPUT
-        write(1, self.input)
+        inp = @on_input.call
+        write(1, inp)
         step(2)
       when STORE
-        outputs << read!(1, POSITION_MODE)
+        out = read!(1, POSITION_MODE)
         step(2)
+        @on_output.call(out)
+        return true
       when JTRUE
         a = read!(1, mode1)
         if a == 0
@@ -161,6 +190,10 @@ class ProgramAlarm
         b = read!(2, mode2)
         write(3, a == b ? 1 : 0)
         step(4)
+     else
+      raise "Unknown OP"
     end
+
+    false
   end
 end

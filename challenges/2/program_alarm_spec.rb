@@ -7,12 +7,12 @@ describe 'ProgramAlarm', :day2, :computer do
     f = File.open(File.join(cur_dir, file_path))
     nums = f.readlines.join('').split(',').map(&:to_i)
 
-    ProgramAlarm.new(nums)
+    ProgramAlarm.new(mem: nums)
   end
 
   def with_text_data(str)
     nums = str.split(',').map(&:to_i)
-    ProgramAlarm.new(nums)
+    ProgramAlarm.new(mem: nums)
   end
 
   def assert_program(str, expected)

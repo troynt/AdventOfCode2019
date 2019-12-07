@@ -6,20 +6,20 @@ describe 'SunnywithaChanceofAsteroid', :day5, :computer do
     f = File.open(File.join(cur_dir, file_path))
     nums = f.readlines.join('').split(',').map(&:to_i)
 
-    ProgramAlarm.new(nums)
+    ProgramAlarm.new(mem: nums)
   end
 
   it 'should be able to handle example data for part one' do
     ex = with_data('fixtures/example.txt')
     ex.run!
-    expect(ex.outputs).to eq([99])
+    expect(ex.mem[4]).to eq(99)
   end
 
 
   it 'should be able to handle example2 data for part one' do
     ex = with_data('fixtures/example2.txt')
     ex.run!
-    expect(ex.outputs).to eq([1, 1])
+    expect(ex.outputs).to eq([1])
   end
 
   it 'should be able to handle input data for part one' do
@@ -30,7 +30,9 @@ describe 'SunnywithaChanceofAsteroid', :day5, :computer do
 
   it 'should be able to handle input data for part two' do
     ex = with_data('fixtures/input.txt')
-    ex.input = 5
+    ex.on_input do
+      5
+    end
     ex.run!
     expect(ex.outputs.last).to eq(3508186)
   end
