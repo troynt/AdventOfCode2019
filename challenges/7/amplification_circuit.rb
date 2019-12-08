@@ -114,22 +114,14 @@ class AmplificationCircuit
 
       puts "#{cur.inspect} halted: #{cur.halted?} input buffer: #{input_buffers[cur]}" if @verbose
 
-      break if amps.all?(&:halted?)
-
-
       loop do
-        did_output = false
         should_break = false
         begin
-          did_output = cur.exec!
-        rescue SuspendError
-          should_break = true
-        rescue HaltError
+          cur.exec!
+        rescue SuspendError, HaltError
           should_break = true
         end
-        if did_output || should_break
-          break
-        end
+        break if should_break
       end
     end
 
