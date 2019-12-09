@@ -32,7 +32,6 @@ describe 'AmplificationCircuit', :day7, :computer do
     expect(ex.calc_part_two).to eq(max_output: 139629729, phase_settings: [9,8,7,6,5])
   end
 
-
   it 'should be able to handle input data for part one' do
     ex = with_data('fixtures/input.txt')
     expect(ex.calc_part_one).to eq(max_output: 116680, phase_settings: [3, 2, 4, 1, 0])

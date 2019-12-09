@@ -21,6 +21,12 @@ describe 'ProgramAlarm', :day2, :computer do
     expect(ex.mem.values.join(",")).to eq(expected)
   end
 
+  it 'should be able to halt' do
+    ex = with_data('fixtures/example.txt')
+    ex.halt! rescue nil
+    expect(ex.halted?).to eq(true)
+  end
+
 
   it 'should be able to handle example data' do
     expect(with_data('fixtures/example.txt').run!).to eq(3500)

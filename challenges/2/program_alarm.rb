@@ -4,9 +4,6 @@ end
 class SuspendError < StandardError
 end
 
-class NoOpError < StandardError
-end
-
 class ProgramAlarm
   OPS = {
     1 => { method: :add, param_count: 3 },
@@ -18,22 +15,8 @@ class ProgramAlarm
     7 => { method: :less_than, param_count: 3 },
     8 => { method: :equal_to, param_count: 3 },
     9 => { method: :adjust_relative_base, param_count: 1 },
-    99 => { method: :halt! }
+    99 => { method: :halt!, param_count: 0 }
   }.each_value(&:freeze).freeze
-
-  # OP Codes
-  ADD = 1
-  MULTIPLY = 2
-  GET_INPUT = 3
-  STORE = 4
-  JTRUE =  5
-  JFALSE = 6
-  LT = 7
-  EQ = 8
-  SET_RELATIVE_BASE = 9
-  HALT = 99
-
-  ERROR = 'error'
 
   POSITION_MODE = 0
   IMMEDIATE_MODE = 1
@@ -172,8 +155,6 @@ class ProgramAlarm
     @ip += amount
   end
 
-
-  # returns true if output
   def exec!
     opcode = mem[@ip]
 
@@ -186,12 +167,15 @@ class ProgramAlarm
       raise "Unknown OP #{op} for code #{opcode}"
     end
 
+    param_count = ((resolved_op[:param_count] || 0) + 1)
     params = []
-    ((resolved_op[:param_count] || 0) + 1).times do |i|
+    param_count.times do |i|
       params << index(i, modes)
     end
 
     params.shift # drop op
+
+    step(param_count)
 
     # ap({method: resolved_op[:method], :params => params })
     self.send(resolved_op[:method], *params)
@@ -205,29 +189,23 @@ class ProgramAlarm
   def add(a, b, out)
     puts "@mem[#{out}] = #{mem[a]} + #{mem[b]}" if verbose
     @mem[out] = mem[a] + mem[b]
-    step(4)
   end
 
   def multiply(a, b, out)
     puts "@mem[#{out}] = #{mem[a]} * #{mem[b]}" if verbose
     @mem[out] = mem[a] * mem[b]
-    step(4)
   end
 
   def input(out)
     @mem[out] = @on_input.call
-    step(2)
   end
 
   def output(out)
     @on_output.call(mem[out])
-    step(2)
   end
 
   def jtrue(a, new_ip)
-    if mem[a] == 0
-      step(3)
-    else
+    unless mem[a] == 0
       @ip = mem[new_ip]
     end
   end
@@ -235,23 +213,18 @@ class ProgramAlarm
   def jfalse(a, new_ip)
     if mem[a] == 0
       @ip = mem[new_ip]
-    else
-      step(3)
     end
   end
 
   def less_than(a, b, out)
     @mem[out] = mem[a] < mem[b] ? 1 : 0
-    step(4)
   end
 
   def equal_to(a, b, out)
     @mem[out] = mem[a] == mem[b] ? 1 : 0
-    step(4)
   end
 
   def adjust_relative_base(adj)
     @relative_base += mem[adj]
-    step(2)
   end
 end

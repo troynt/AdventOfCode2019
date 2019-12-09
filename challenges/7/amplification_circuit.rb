@@ -7,6 +7,10 @@ require_relative '../2/program_alarm'
 
 # https://adventofcode.com/2019/day/7
 class AmplificationCircuit
+
+  attr_accessor(
+    :verbose
+  )
   def initialize(mem:, verbose: false)
     @mem = mem
     @verbose = verbose
