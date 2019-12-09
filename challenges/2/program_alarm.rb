@@ -8,6 +8,19 @@ class NoOpError < StandardError
 end
 
 class ProgramAlarm
+  OPS = {
+    1 => { method: :add, param_count: 3 },
+    2 => { method: :multiply,  param_count: 3 },
+    3 => { method: :input, param_count: 1  },
+    4 => { method: :output,  param_count: 1 },
+    5 => { method: :jtrue, param_count: 2 },
+    6 => { method: :jfalse, param_count: 2 },
+    7 => { method: :less_than, param_count: 3 },
+    8 => { method: :equal_to, param_count: 3 },
+    9 => { method: :adjust_relative_base, param_count: 1 },
+    99 => { method: :halt! }
+  }.each_value(&:freeze).freeze
+
   # OP Codes
   ADD = 1
   MULTIPLY = 2
@@ -162,68 +175,83 @@ class ProgramAlarm
 
   # returns true if output
   def exec!
-
     opcode = mem[@ip]
 
     op = opcode % 100
     modes = [(opcode / 100) % 10, (opcode / 1000) % 10, (opcode / 10000) % 10]
 
-    puts "op #{op}" if verbose
+    resolved_op = OPS[op]
 
-    case op
-      when HALT
-        @halted = true
-        raise HaltError, "#{inspect} got halt"
-      when ADD
-        a = read!(1, modes)
-        b = read!(2, modes)
-        write(3, a + b, modes)
-        step(4)
-      when MULTIPLY
-        a = read!(1, modes)
-        b = read!(2, modes)
-        write(3, a * b, modes)
-        step(4)
-      when GET_INPUT
-        inp = @on_input.call
-        write(1, inp, modes)
-        step(2)
-      when STORE
-        out = read!(1, modes)
-        step(2)
-        @on_output.call(out)
-        return true
-      when JTRUE
-        a = read!(1, modes)
-        if a == 0
-          step(3)
-        else
-          @ip = read!(2, modes)
-        end
-      when JFALSE
-        a = read!(1, modes)
-        if a == 0
-          @ip = read!(2, modes)
-        else
-          step(3)
-        end
-      when LT
-        a = read!(1, modes)
-        b = read!(2, modes)
-        write(3, a < b ? 1 : 0, modes)
-        step(4)
-      when EQ
-        a = read!(1, modes)
-        b = read!(2, modes)
-        write(3, a == b ? 1 : 0, modes)
-        step(4)
-      when SET_RELATIVE_BASE
-        @relative_base += read!(1, modes)
-        step(2)
-      else
-        raise "Unknown OP #{op} for code #{opcode}"
+    if resolved_op.nil?
+      raise "Unknown OP #{op} for code #{opcode}"
     end
 
-    false
+    params = []
+    ((resolved_op[:param_count] || 0) + 1).times do |i|
+      params << index(i, modes)
+    end
+
+    params.shift # drop op
+
+    # ap({method: resolved_op[:method], :params => params })
+    self.send(resolved_op[:method], *params)
+  end
+
+  def halt!
+    @halted = true
+    raise HaltError, "#{inspect} got halt"
+  end
+
+  def add(a, b, out)
+    puts "@mem[#{out}] = #{mem[a]} + #{mem[b]}" if verbose
+    @mem[out] = mem[a] + mem[b]
+    step(4)
+  end
+
+  def multiply(a, b, out)
+    puts "@mem[#{out}] = #{mem[a]} * #{mem[b]}" if verbose
+    @mem[out] = mem[a] * mem[b]
+    step(4)
+  end
+
+  def input(out)
+    @mem[out] = @on_input.call
+    step(2)
+  end
+
+  def output(out)
+    @on_output.call(mem[out])
+    step(2)
+  end
+
+  def jtrue(a, new_ip)
+    if mem[a] == 0
+      step(3)
+    else
+      @ip = mem[new_ip]
+    end
+  end
+
+  def jfalse(a, new_ip)
+    if mem[a] == 0
+      @ip = mem[new_ip]
+    else
+      step(3)
+    end
+  end
+
+  def less_than(a, b, out)
+    @mem[out] = mem[a] < mem[b] ? 1 : 0
+    step(4)
+  end
+
+  def equal_to(a, b, out)
+    @mem[out] = mem[a] == mem[b] ? 1 : 0
+    step(4)
+  end
+
+  def adjust_relative_base(adj)
+    @relative_base += mem[adj]
+    step(2)
   end
 end
