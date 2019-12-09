@@ -97,29 +97,6 @@ class ProgramAlarm
     mem_idx
   end
 
-  def read!(parameter, modes)
-    mem_idx = index(parameter, modes)
-
-    ret = @mem[mem_idx]
-
-    puts "got #{ret}" if verbose
-
-    if ret.nil?
-      ret = 0
-      puts "using 0 instead." if verbose
-    end
-
-    ret
-  end
-
-  def write(offset, value, modes)
-    location = index(offset, modes)
-
-    raise "Attempting to write to negative address." if location < 0
-
-    @mem[location] = value
-  end
-
   def halted?
     @halted
   end
