@@ -5,20 +5,20 @@ describe 'ProgramAlarm', :day2, :computer do
   def with_data(file_path)
     cur_dir = File.dirname(__FILE__)
     f = File.open(File.join(cur_dir, file_path))
-    nums = f.readlines.join('').split(',').map(&:to_i)
+    nums = f.readlines.join('').split(',').map(&:to_i).freeze
 
     ProgramAlarm.new(mem: nums)
   end
 
   def with_text_data(str)
-    nums = str.split(',').map(&:to_i)
+    nums = str.split(',').map(&:to_i).freeze
     ProgramAlarm.new(mem: nums)
   end
 
   def assert_program(str, expected)
     ex = with_text_data(str)
     ex.run!
-    expect(ex.mem.join(",")).to eq(expected)
+    expect(ex.mem.values.join(",")).to eq(expected)
   end
 
 
