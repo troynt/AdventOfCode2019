@@ -33,7 +33,7 @@ class ProgramAlarm
   )
 
   def initialize(mem:, id: "", verbose: false)
-    @orig = mem.each_with_index.to_h { |x, i| [i, x] }.tap { |h| h.default = 0 }
+    @orig = mem.map(&:to_i).each_with_index.to_h { |x, i| [i, x] }.tap { |h| h.default = 0 }
     @verbose = verbose
     @on_input = Proc.new do
       1
