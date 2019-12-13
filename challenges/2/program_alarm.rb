@@ -61,6 +61,10 @@ class ProgramAlarm
     @on_output = block
   end
 
+  def quarters=(amt)
+    @mem[0] = amt
+  end
+
   def noun=(noun)
     @mem[1] = noun
   end
